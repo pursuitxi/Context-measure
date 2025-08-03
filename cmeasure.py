@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from skimage.color import deltaE_ciede2000, rgb2lab
 
 class GeneralContextMeasure:
-    def __init__(self, beta2: float = 1.0, alpha: float = 5.0):
+    def __init__(self, beta2: float = 1.0, alpha: float = 6.0):
         """
         Initializes the ContextMeasure instance.
 
@@ -122,7 +122,7 @@ class GeneralContextMeasure:
         return std_cov_matrix, x_dis, y_dis
 
 class CamoContextMeasure(GeneralContextMeasure):
-    def __init__(self, beta2: float = 1.2, alpha: float = 5.0, gamma: int = 8, lambda_spatial: float = 20):
+    def __init__(self, beta2: float = 1.2, alpha: float = 6.0, gamma: int = 8, lambda_spatial: float = 20):
         """
         Initializes the ContextMeasure instance.
 
@@ -373,7 +373,7 @@ class CamoContextMeasure(GeneralContextMeasure):
 #################################################################################
 
 class ContextMeasure:
-    def __init__(self, beta2: float = 1.2, alpha: float = 5.0, gamma: int = 8, lambda_spatial: float = 20):
+    def __init__(self, beta2: float = 1.2, alpha: float = 6.0, gamma: int = 8, lambda_spatial: float = 20):
         """
         Initializes the ContextMeasure instance.
 
