@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 import math
-import hnswlib
 import faiss
 from sklearn.preprocessing import StandardScaler
 from skimage.color import deltaE_ciede2000, rgb2lab
@@ -225,38 +224,6 @@ class CamoContextMeasure(GeneralContextMeasure):
         ).astype(np.float64)
 
         return img_recon, cd
-
-    def _ann_with_spatial(self, x: np.ndarray, q: np.ndarray, x_coords: np.ndarray, q_coords: np.ndarray, m: int = 16) -> np.ndarray:
-        """
-        HNSWLib-based ANN search with spatial-aware feature augmentation.
-        """
-        # 标准化坐标
-        scaler = StandardScaler()
-        all_coords = np.vstack([x_coords, q_coords])
-        scaled_coords = scaler.fit_transform(all_coords)
-        x_coords_scaled = scaled_coords[:len(x_coords)]
-        q_coords_scaled = scaled_coords[len(x_coords):]
-
-        # 拼接图像特征 + 空间特征
-        x_aug = np.hstack([x, self.lambda_spatial * x_coords_scaled])
-        q_aug = np.hstack([q, self.lambda_spatial * q_coords_scaled])
-
-        x_aug = x_aug.astype(np.float32)
-        q_aug = q_aug.astype(np.float32)
-
-        dim = x_aug.shape[1]
-        num_elements = x_aug.shape[0]
-
-        # 初始化 HNSW Index
-        index = hnswlib.Index(space='l2', dim=dim)
-        index.init_index(max_elements=num_elements, ef_construction=200, M=m, random_seed=42)
-        index.add_items(x_aug)
-        index.set_ef(64)
-
-        # 查询最近邻
-        k = 1
-        indices, _ = index.knn_query(q_aug, k)
-        return indices
 
     def _ann_with_spatial_faiss(self, x, q, x_coords, q_coords, m=16):
         # 坐标标准化 + 空间增强
@@ -544,39 +511,6 @@ class ContextMeasure:
         ).astype(np.float64)
 
         return img_recon, cd
-
-
-    def _ann_with_spatial(self, x: np.ndarray, q: np.ndarray, x_coords: np.ndarray, q_coords: np.ndarray, m: int = 16) -> np.ndarray:
-        """
-        HNSWLib-based ANN search with spatial-aware feature augmentation.
-        """
-        # 标准化坐标
-        scaler = StandardScaler()
-        all_coords = np.vstack([x_coords, q_coords])
-        scaled_coords = scaler.fit_transform(all_coords)
-        x_coords_scaled = scaled_coords[:len(x_coords)]
-        q_coords_scaled = scaled_coords[len(x_coords):]
-
-        # 拼接图像特征 + 空间特征
-        x_aug = np.hstack([x, self.lambda_spatial * x_coords_scaled])
-        q_aug = np.hstack([q, self.lambda_spatial * q_coords_scaled])
-
-        x_aug = x_aug.astype(np.float32)
-        q_aug = q_aug.astype(np.float32)
-
-        dim = x_aug.shape[1]
-        num_elements = x_aug.shape[0]
-
-        # 初始化 HNSW Index
-        index = hnswlib.Index(space='l2', dim=dim)
-        index.init_index(max_elements=num_elements, ef_construction=200, M=m, random_seed=42)
-        index.add_items(x_aug)
-        index.set_ef(64)
-
-        # 查询最近邻
-        k = 1
-        indices, _ = index.knn_query(q_aug, k)
-        return indices
 
     def _ann_with_spatial_faiss(self, x, q, x_coords, q_coords, m=16):
         # 坐标标准化 + 空间增强
