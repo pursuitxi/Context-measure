@@ -1,5 +1,3 @@
-# Readme
-
 ## Quick Eval
 
 ### Overall
