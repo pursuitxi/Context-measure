@@ -36,33 +36,44 @@ class GeneralContextMeasure:
         cov_matrix, x_dis, y_dis = self._compute_y_params(Y)
         K = self._gaussian_kernel(x_dis, y_dis, cov_matrix)
 
-        # CIR
-        cir = self._calculate_cir(X, Y, K)
-        mcir = np.sum(cir * X) / (np.sum(X) + 1e-8)
+        # forward inference
+        forward = self.forward_inference(X, Y, K)
+        mforward = np.sum(forward * X) / (np.sum(X) + 1e-8)
 
-        # CAC
-        cac = self._calculate_cac(X, Y, K)
+        # reverse deduction
+        reverse = self.reverse_deduction(X, Y, K)
+        e = np.zeros_like(Y)
         if img is not None:
-            e = self._calculate_extrinsic(img, Y)
-        else:
-            e = np.zeros_like(Y)
-        wcac = np.sum(cac * (Y + e)) / (np.sum(Y) + np.sum(e) + 1e-8)
+            e = self.context_weight(img, Y)
+            
+        wreverse = np.sum(reverse * (Y + e)) / (np.sum(Y) + np.sum(e) + 1e-8)
 
-        return (1 + self.beta2) * mcir * wcac / (self.beta2 * mcir + wcac + 1e-8)
+        return (1 + self.beta2) * mforward * wreverse / (self.beta2 * mforward + wreverse + 1e-8)
 
-    def _calculate_cir(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    def visualize(self, fm: np.ndarray, gt: np.ndarray, img: np.ndarray = None) -> tuple:
+        X = self._preprocess_map(fm, binary_flag = False)
+        Y = self._preprocess_map(gt, binary_flag = True)
+        cov_matrix, x_dis, y_dis = self._compute_y_params(Y)
+        K = self._gaussian_kernel(x_dis, y_dis, cov_matrix)
+
+        forward = self.forward_inference(X, Y, K)
+        reverse = self.reverse_deduction(X, Y, K)
+
+        return forward, reverse
+    
+    def forward_inference(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
         x_binary = (X > 0).astype(int)
         global_relevance_matrix = cv2.filter2D(Y, cv2.CV_32F, kernel)
         return x_binary * global_relevance_matrix
 
-    def _calculate_cac(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    def reverse_deduction(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
         X = X.astype(float)
         non_global_completeness_matrix = np.exp(-1 * cv2.filter2D(X, -1, kernel))
         global_completeness_matrix = 1 - non_global_completeness_matrix
-        cac = self._exp_factor * Y * global_completeness_matrix
-        return cac
+        reverse = self._exp_factor * Y * global_completeness_matrix
+        return reverse
 
-    def _calculate_extrinsic(self, img: np.ndarray, Y: np.ndarray) -> np.ndarray:
+    def context_weight(self, img: np.ndarray, Y: np.ndarray) -> np.ndarray:
         pass
 
     def _preprocess_map(self, img, binary_flag) -> np.ndarray:
@@ -120,6 +131,7 @@ class GeneralContextMeasure:
 
         return std_cov_matrix, x_dis, y_dis
 
+
 class CamoContextMeasure(GeneralContextMeasure):
     def __init__(self, beta2: float = 1.2, alpha: float = 6.0, gamma: int = 8, lambda_spatial: float = 20):
         """
@@ -153,19 +165,21 @@ class CamoContextMeasure(GeneralContextMeasure):
         cov_matrix, x_dis, y_dis = self._compute_y_params(Y)
         K = self._gaussian_kernel(x_dis, y_dis, cov_matrix)
 
-        # CIR
-        cir = self._calculate_cir(X, Y, K)
-        mcir = np.sum(cir * X) / (np.sum(X) + 1e-8)
+        # forward inference
+        forward = self.forward_inference(X, Y, K)
+        mforward = np.sum(forward * X) / (np.sum(X) + 1e-8)
 
-        # CAC
-        cac = self._calculate_cac(X, Y, K)
+        # reverse deduction
+        reverse = self.reverse_deduction(X, Y, K)
+        cd = np.zeros_like(Y)
         if img is not None:
-            _, cd = self._calculate_camouflage_degree(img, Y)
-        else:
-            cd = np.zeros_like(Y)
-        wcac = np.sum(cac * (Y + cd)) / (np.sum(Y) + np.sum(cd) + 1e-8)
+            try:
+                _, cd = self._calculate_camouflage_degree(img, Y)
+            except:
+                pass
+        wreverse = np.sum(reverse * (Y + cd)) / (np.sum(Y) + np.sum(cd) + 1e-8)
 
-        return (1 + self.beta2) * mcir * wcac / (self.beta2 * mcir + wcac + 1e-8)
+        return (1 + self.beta2) * mforward * wreverse / (self.beta2 * mforward + wreverse + 1e-8)
 
     def visualize(self, img: np.ndarray, gt: np.ndarray) -> tuple:
         Y = self._preprocess_map(gt, binary_flag = True)
@@ -226,7 +240,6 @@ class CamoContextMeasure(GeneralContextMeasure):
         return img_recon, cd
 
     def _ann_with_spatial_faiss(self, x, q, x_coords, q_coords, m=16):
-        # 坐标标准化 + 空间增强
         scaler = StandardScaler()
         all_coords = np.vstack([x_coords, q_coords])
         scaled_coords = scaler.fit_transform(all_coords)
@@ -236,15 +249,14 @@ class CamoContextMeasure(GeneralContextMeasure):
         x_aug = np.hstack([x, self.lambda_spatial * x_coords_scaled]).astype(np.float32)
         q_aug = np.hstack([q, self.lambda_spatial * q_coords_scaled]).astype(np.float32)
 
-        # 建立 Index
         dim = x_aug.shape[1]
-        index = faiss.IndexFlatL2(dim)  # L2 距离
+        index = faiss.IndexFlatL2(dim)  # L2
         index.add(x_aug)
 
         _, indices = index.search(q_aug, 1)  # top-1
         return indices
 
-    def _extract_surrounding_background(self, mask: np.ndarray, kernel_size: int = 50) -> np.ndarray:
+    def _extract_surrounding_background(self, mask: np.ndarray, kernel_size: int) -> np.ndarray:
         kernel = np.ones((kernel_size, kernel_size), np.uint8)
         dilated_mask = cv2.dilate(mask, kernel, iterations=1)
         surrounding_bg_mask = dilated_mask - mask
@@ -356,7 +368,6 @@ class ContextMeasure:
         self.lambda_spatial = lambda_spatial
         self._exp_factor = math.e / (math.e - 1)
 
-
     def compute(self, fm: np.ndarray, gt: np.ndarray, img: np.ndarray = None) -> float:
         """
         Computes the context measure between foreground map and ground truth.
@@ -373,19 +384,21 @@ class ContextMeasure:
         cov_matrix, x_dis, y_dis = self._compute_y_params(Y)
         K = self._gaussian_kernel(x_dis, y_dis, cov_matrix)
 
-        # CIR
-        cir = self._calculate_cir(X, Y, K)
-        mcir = np.sum(cir * X) / (np.sum(X) + 1e-8)
+        # forward inference
+        forward = self.forward_inference(X, Y, K)
+        mforward = np.sum(forward * X) / (np.sum(X) + 1e-8)
 
-        # CAC
-        cac = self._calculate_cac(X, Y, K)
+        # reverse deduction
+        reverse = self.reverse_deduction(X, Y, K)
+        cd = np.zeros_like(Y)
         if img is not None:
-            _, cd = self._calculate_camouflage_degree(img, Y)
-        else:
-            cd = np.zeros_like(Y)
-        wcac = np.sum(cac * (Y + cd)) / (np.sum(Y) + np.sum(cd) + 1e-8)
+            try:
+                _, cd = self._calculate_camouflage_degree(img, Y)
+            except:
+                pass
+        wreverse = np.sum(reverse * (Y + cd)) / (np.sum(Y) + np.sum(cd) + 1e-8)
 
-        return (1 + self.beta2) * mcir * wcac / (self.beta2 * mcir + wcac + 1e-8)
+        return (1 + self.beta2) * mforward * wreverse / (self.beta2 * mforward + wreverse + 1e-8)
 
     def visualize(self, img: np.ndarray, gt: np.ndarray) -> tuple:
         Y = self._preprocess_map(gt, binary_flag = True)
@@ -394,17 +407,17 @@ class ContextMeasure:
         img_recon, cd = self._calculate_camouflage_degree(img, Y)
         return img_recon, cd
 
-    def _calculate_cir(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    def forward_inference(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
         x_binary = (X > 0).astype(int)
         global_relevance_matrix = cv2.filter2D(Y, cv2.CV_32F, kernel)
         return x_binary * global_relevance_matrix
 
-    def _calculate_cac(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    def reverse_deduction(self, X: np.ndarray, Y: np.ndarray, kernel: np.ndarray) -> np.ndarray:
         X = X.astype(float)
         non_global_completeness_matrix = np.exp(-1 * cv2.filter2D(X, -1, kernel))
         global_completeness_matrix = 1 - non_global_completeness_matrix
-        cac = self._exp_factor * Y * global_completeness_matrix
-        return cac
+        reverse = self._exp_factor * Y * global_completeness_matrix
+        return reverse
 
     def _preprocess_map(self, img, binary_flag) -> np.ndarray:
         """
@@ -513,7 +526,6 @@ class ContextMeasure:
         return img_recon, cd
 
     def _ann_with_spatial_faiss(self, x, q, x_coords, q_coords, m=16):
-        # 坐标标准化 + 空间增强
         scaler = StandardScaler()
         all_coords = np.vstack([x_coords, q_coords])
         scaled_coords = scaler.fit_transform(all_coords)
@@ -523,9 +535,8 @@ class ContextMeasure:
         x_aug = np.hstack([x, self.lambda_spatial * x_coords_scaled]).astype(np.float32)
         q_aug = np.hstack([q, self.lambda_spatial * q_coords_scaled]).astype(np.float32)
 
-        # 建立 Index
         dim = x_aug.shape[1]
-        index = faiss.IndexFlatL2(dim)  # L2 距离
+        index = faiss.IndexFlatL2(dim)  # L2
         index.add(x_aug)
 
         _, indices = index.search(q_aug, 1)  # top-1
@@ -608,18 +619,14 @@ class ContextMeasure:
         3. Compute the pixel-wise ΔE 2000 color difference between the two images.
         4. Normalize the ΔE 2000 values to [0,1] for similarity representation.
         """
-        # Convert BGR to RGB
         img1_rgb = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
         img2_rgb = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 
-        # Convert RGB to Lab Color Space
         lab1 = rgb2lab(img1_rgb)
         lab2 = rgb2lab(img2_rgb)
 
-        # Compute ΔE 2000 Color Difference
         delta_e_matrix = deltaE_ciede2000(lab1, lab2)
 
-        # Normalize ΔE 2000 Values to [0,1]
         similarity_matrix = 1 - np.clip(delta_e_matrix / 100, 0, 1)
 
         return similarity_matrix
