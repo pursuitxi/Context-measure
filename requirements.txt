@@ -1,0 +1,7 @@
+numpy
+opencv-python
+faiss-cpu
+scikit-learn
+scikit-image
+tqdm
+prettytable
