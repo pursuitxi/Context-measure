@@ -4,8 +4,7 @@ import time
 import os
 import argparse
 from prettytable import PrettyTable
-from src.cmeasure import GeneralContextMeasure, CamoContextMeasure, ContextMeasure
-from src.metrics import compute_all_metrics
+from cmeasure import GeneralContextMeasure, CamoContextMeasure, ContextMeasure
 
 def evaluate(img, gt, fm):
     # two usage
