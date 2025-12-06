@@ -18,7 +18,7 @@
 
 ![Camouflage Degree](/img/camouflage_degree.png)
 
-## Quick Eval
+## :rocket: Quick Eval
 
 ### Overall
 
