@@ -50,3 +50,19 @@ Running the `visualize()` function will generate camouflage heatmap.  All output
 visualize(img, gt)  # visualize camouflage degree
 ```
 
+
+## Citation
+
+```
+@article{wang2025cmeasure,
+  title={Context-measure: Contextualizing Metric for Camouflage},
+  author={Wang, Chen-Yang and Ji, Gepeng and Shao, Song and Cheng, Ming-Ming and Fan, Deng-Ping},
+  journal={arXiv preprint arXiv:2512.xxxxx},
+  year={2025}
+}
+```
+
+## Contact
+
+Any questions, discussions, or even complaints, feel free to leave issues here (recommended) or send me e-mails (wangchenyang213@gmail.com).
+
