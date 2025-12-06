@@ -1,3 +1,7 @@
+# Context-measure: Contextualizing Metric for Camouflage
+
+![Camouflage Degree](\Image\camouflage_degree.png)
+
 ## Quick Eval
 
 ### Overall
