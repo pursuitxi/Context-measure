@@ -5,6 +5,7 @@ import os
 import argparse
 from prettytable import PrettyTable
 from cmeasure import GeneralContextMeasure, CamoContextMeasure, ContextMeasure
+from metrics import compute_all_metrics
 
 def evaluate(img, gt, fm):
     # two usage
