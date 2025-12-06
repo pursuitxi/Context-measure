@@ -52,7 +52,7 @@ visualize(img, gt)  # visualize camouflage degree
 ```
 
 
-## Citation
+## :flight_arrival: Citation
 
 ```
 @article{wang2025cmeasure,
