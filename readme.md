@@ -36,7 +36,17 @@ Then you can use the command 'python quick_eval.py' to start. Next is the quick 
 
 Running the `evaluate()` function produces our context-measure (general and camouflaged) along with other saliency-era evaluation metrics.
 
+```python
+# input original image: img, ground-truth mask: gt, predicted mask: fm
+evaluate(img, gt, fm)  # quick evaluation
+```
+
 ### Visualization
 
 Running the `visualize()` function will generate camouflage heatmap.  All outputs are saved to the `vis_cd/` directory.
+
+```python
+# input original image: img, ground-truth mask: gt
+visualize(img, gt)  # visualize camouflage degree
+```
 
