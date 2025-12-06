@@ -12,7 +12,7 @@
 </div>
 
 <div align="center" style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 50px;">
-  <a href=https://github.com/pursuitxi/Context-measure''><img src='https://img.shields.io/badge/arXiv-Paper-red'></a>&ensp; 
+  <a href='https://github.com/pursuitxi/Context-measure'><img src='https://img.shields.io/badge/arXiv-Paper-red'></a>&ensp; 
   <a href='LICENSE'><img src='https://img.shields.io/badge/License-MIT-yellow'></a>&ensp; 
 </div>
 
