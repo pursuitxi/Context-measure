@@ -12,7 +12,7 @@ _EPS = np.spacing(1)
 _TYPE = np.float64
 
 
-def compute_all_metrics(pred, gt):
+def compute_sal_metrics(pred, gt):
     s = SMeasure(); s.step(pred, gt); sm = s.get_results()['sm']
     f = FMeasure(); f.step(pred, gt); fm = f.get_results()['fm']['adp']
     e = EMeasure(); e.step(pred, gt); em = e.get_results()['em']['adp']
