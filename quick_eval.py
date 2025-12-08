@@ -56,12 +56,16 @@ def visualize(img, gt):
 
 
 if __name__ == '__main__':
+    # setup your inputs
     index = 465
     img = cv2.imread(f'img/{index}.jpg')
     gt = cv2.imread(f'img/{index}_gt.png', cv2.IMREAD_GRAYSCALE)
     fm = cv2.imread(f'img/{index}_fm.png', cv2.IMREAD_GRAYSCALE)
 
-    evaluate(img, gt, fm)  # quick evaluation
-    visualize(img, gt)  # visualize camouflage degree
+    # get numerical evaluation scores
+    evaluate(img, gt, fm)
+    
+    # visualize heatmap of  camouflage degree
+    visualize(img, gt)
 
 
