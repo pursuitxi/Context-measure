@@ -60,7 +60,7 @@ Then you can use the command `python quick_eval.py` to start. We provide two fun
 }
 ```
 
-## Contact
+## 📧 Contact
 
-Any questions and suggestions, feel free to leave issues here or send us e-mail via 📧wangchenyang213@gmail.com or 📧gepengai.ji@gmail.com
+Any questions and suggestions, feel free to leave issues here or send us e-mail via wangchenyang213@gmail.com or gepengai.ji@gmail.com
 
