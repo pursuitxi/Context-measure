@@ -12,12 +12,16 @@
 </div>
 
 <div align="center" style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 50px;">
-  <a href='https://github.com/pursuitxi/Context-measure'><img src='https://img.shields.io/badge/arXiv-Paper-red'></a>&ensp; 
+  <a href='https://arxiv.org/abs/2512.07076'><img src='https://img.shields.io/badge/arXiv-Paper-red'></a>&ensp; 
   <a href='LICENSE'><img src='https://img.shields.io/badge/License-MIT-yellow'></a>&ensp; 
 </div>
 
 ![Camouflage Degree](/img/camouflage_degree.png)
 ![Framework](/img/framework.png)
+
+## 🔥 Updates
+
+- [Dec/09/2025] Project release!
 
 ## :rocket: Quick Evaluation
 
@@ -58,5 +62,5 @@ Then you can use the command `python quick_eval.py` to start. We provide two fun
 
 ## Contact
 
-Any questions, discussions, or even complaints, feel free to leave issues here (recommended) or send me e-mails (wangchenyang213@gmail.com).
+Any questions and suggestions, feel free to leave issues here or send us e-mail via 📧wangchenyang213@gmail.com or 📧gepengai.ji@gmail.com
 
