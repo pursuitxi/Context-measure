@@ -51,7 +51,7 @@ Then you can use the command `python quick_eval.py` to start. We provide two fun
 @article{wang2025cmeasure,
   title={Context-measure: Contextualizing Metric for Camouflage},
   author={Wang, Chen-Yang and Ji, Gepeng and Shao, Song and Cheng, Ming-Ming and Fan, Deng-Ping},
-  journal={arXiv preprint arXiv:2512.xxxxx},
+  journal={arXiv preprint arXiv:2512.07076},
   year={2025}
 }
 ```
