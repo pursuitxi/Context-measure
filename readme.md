@@ -13,6 +13,7 @@
 
 <div align="center" style="display: flex; justify-content: center; flex-wrap: wrap; margin-top: 50px;">
   <a href='https://arxiv.org/abs/2512.07076'><img src='https://img.shields.io/badge/arXiv-Paper-red'></a>&ensp; 
+  <a href='https://pursuitxi.github.io/Camouflage-Leaderboard/'><img src='https://img.shields.io/badge/Page-Project-red'></a>&ensp; 
   <a href='LICENSE'><img src='https://img.shields.io/badge/License-MIT-yellow'></a>&ensp; 
 </div>
 
