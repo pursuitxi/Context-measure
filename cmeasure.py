@@ -119,6 +119,10 @@ class GeneralContextMeasure:
             return np.diag([0.25, 0.25]), 1, 1
 
         cov_matrix = np.cov(points, rowvar=False)
+        if cov_matrix[0, 0] == 0:
+            cov_matrix[0, 0] = 1e-8
+        if cov_matrix[1, 1] == 0:
+            cov_matrix[1, 1] = 1e-8
         sigma_x = np.sqrt(cov_matrix[0, 0])
         sigma_y = np.sqrt(cov_matrix[1, 1])
         total_sigma = np.sqrt(cov_matrix[0, 0] + cov_matrix[1, 1])
