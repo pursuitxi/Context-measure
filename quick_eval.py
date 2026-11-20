@@ -20,7 +20,7 @@ def evaluate(img, gt, fm):
     # cm = CMeasure.compute(fm,gt,img)
 
     # other saliency-era metrics:
-    others = compute_all_metrics(fm, gt)
+    others = compute_sal_metrics(fm, gt)
 
     # ---- PrettyTable 输出 ----
     table = PrettyTable()
